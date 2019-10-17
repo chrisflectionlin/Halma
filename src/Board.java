@@ -1,3 +1,5 @@
+import com.sun.tools.javac.util.List;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -6,16 +8,21 @@ public class Board {
     int length;
     ArrayList<Piece> white = new ArrayList<>();
     ArrayList<Piece> black = new ArrayList<>();
+    boolean jumped;
+    Piece last;
     public Board(int in_length, int in_width){
-        length = in_length;
-        width = in_width;
+        this.length = in_length;
+        this.width = in_width;
+        boolean jumped = false;
     }
 
+
     public Board(int in_length, int in_width, ArrayList<Piece> white, ArrayList<Piece> black){
-        length = in_length;
-        width = in_width;
+        this.length = in_length;
+        this.width = in_width;
         this.white = white;
         this.black = black;
+        boolean jumped = false;
     }
 
     public ArrayList<Piece> getBlack() {
@@ -24,6 +31,22 @@ public class Board {
 
     public ArrayList<Piece> getWhite() {
         return white;
+    }
+
+    public boolean getJumped(){
+        return jumped;
+    }
+
+    public void setJumped(boolean b){
+        this.jumped = b;
+    }
+
+    public Piece getLast(){
+        return this.last;
+    }
+
+    public void setLast(Piece p){
+        this.last = p;
     }
 
     public void addPiece(Piece piece){
@@ -35,25 +58,39 @@ public class Board {
     }
     //TODO: FINISH IT
     public ArrayList<Board> generateMove(String side){
-        //IF CAMP IS NOT EMPTY, MUST MOVE THE PIECES IN CAMP FIRST
+        //IF CAMP IS  EMPTY, MMOVE AS PLEASE
         ArrayList<Board> moves = new ArrayList<>();
         if(campisEmpty(side)){
             if(side.equals("BLACK")){
-                for(Piece p : black){
+                for(Piece p : this.black){
                     moves.addAll(possibleMove(p));
                 }
             }else{
-                for(Piece p : white){
+                for(Piece p : this.white){
                     moves.addAll(possibleMove(p));
                 }
             }
         }else{
-            //IF IN CAMP, GENERATE MOVES FOR THE PIECES IN CAMP
+            //IF CAMP NOT EMPTY, GENERATE MOVES FOR THE PIECES IN CAMP
+            if(side.equals("BLACK")){
+                for(Piece p : this.black){
+                    if(inCamp(p.getY(),p.getX(),p.getColor())){
+                        moves.addAll(possibleMove(p));
+                    }
+                }
+            }else{
+                for(Piece p : this.white){
+                    if(inCamp(p.getY(),p.getX(),p.getColor())){
+                        moves.addAll(possibleMove(p));
+                    }
+                }
+            }
         }
         return moves;
         //IF CAMP IS EMPTY, MOVE AS PLEASE
     }
-    //TODO: 1.1:ADD THE JUMP MOVE , FIX inCamp 1.2:SHOULD BE GOOD TO GO, DO MORE TESTING
+
+    //TODO: IF PIECE IN CAMP, JUST GO FURTHER AWAY
     //POSSIBLE MOVE FOR 1 SINGLE PIECE
     public ArrayList<Board> possibleMove(Piece piece){
         int piece_y = piece.getY();
@@ -61,49 +98,49 @@ public class Board {
         ArrayList<Board> moves = new ArrayList<>();
         String[][] boardarr = construtBoard();
         //GET ALL E MOVES, 8 DIRECTIONS
-        if(piece_y-1>=0 && piece_x-1>=0 &&!inCamp(piece_y-1,piece_x-1)){
+        if(piece_y-1>=0 && piece_x-1>=0 &&!inCamp(piece_y-1,piece_x-1,piece.getColor())){
             if(boardarr[piece_y-1][piece_x-1].equals(".") ){
                 //move piece left up
                 moves.add(this.newBoard(piece,piece_y-1,piece_x-1));
             }
         }
-        if(piece_y+1<this.length && piece_x+1<this.width &&!inCamp(piece_y+1,piece_x+1)){
+        if(piece_y+1<this.length && piece_x+1<this.width &&!inCamp(piece_y+1,piece_x+1,piece.getColor())){
             if(boardarr[piece_y+1][piece_x+1].equals(".")){
                 //move piece right down
                 moves.add(this.newBoard(piece,piece_y+1,piece_x+1));
             }
         }
-        if(piece_y+1<this.length && piece_x-1>=0&&!inCamp(piece_y+1,piece_x-1)){
+        if(piece_y+1<this.length && piece_x-1>=0&&!inCamp(piece_y+1,piece_x-1,piece.getColor())){
             if(boardarr[piece_y+1][piece_x-1].equals(".")){
                 //move piece left down
                 moves.add(this.newBoard(piece,piece_y+1,piece_x-1));
             }
         }
-        if(piece_y-1>=0 && piece_x+1<this.width&&!inCamp(piece_y-1,piece_x+1)){
+        if(piece_y-1>=0 && piece_x+1<this.width&&!inCamp(piece_y-1,piece_x+1,piece.getColor())){
             if(boardarr[piece_y-1][piece_x+1].equals(".")){
                 //move piece right up
                 moves.add(this.newBoard(piece,piece_y-1,piece_x+1));
             }
         }
-        if(piece_y-1>=0&&!inCamp(piece_y-1,piece_x)) {
+        if(piece_y-1>=0&&!inCamp(piece_y-1,piece_x,piece.getColor())) {
             if (boardarr[piece_y-1][piece_x].equals(".")) {
                 //move piece up
                 moves.add(this.newBoard(piece,piece_y-1,piece_x));
             }
         }
-        if(piece_y+1<this.length &&!inCamp(piece_y+1,piece_x)){
+        if(piece_y+1<this.length &&!inCamp(piece_y+1,piece_x,piece.getColor())){
             if(boardarr[piece_y+1][piece_x].equals(".")){
                 //move piece down
                 moves.add(this.newBoard(piece,piece_y+1,piece_x));
             }
         }
-        if(piece_x-1>=0&&!inCamp(piece_y,piece_x-1)){
+        if(piece_x-1>=0&&!inCamp(piece_y,piece_x-1,piece.getColor())){
             if(boardarr[piece_y][piece_x-1].equals(".")){
-                //move piece down
+                //move piece left
                 moves.add(this.newBoard(piece,piece_y,piece_x-1));
             }
         }
-        if(piece_x+1<this.width&&!inCamp(piece_y,piece_x+1)){
+        if(piece_x+1<this.width&&!inCamp(piece_y,piece_x+1,piece.getColor())){
             if(boardarr[piece_y][piece_x+1].equals(".")){
                 //move piece right
                 moves.add(this.newBoard(piece,piece_y,piece_x+1));
@@ -114,7 +151,6 @@ public class Board {
         return moves;
     }
 
-    //TODO: BACKTRACK THE JUMP, THOUGHTS: I CAN USE BOARD CLASS TO BACK TRACK
     public ArrayList<Board> jump(Piece piece, ArrayList<Board> boards,Board current,Piece original){
         String[][] boardarr = current.construtBoard();
         if(!jumpExist(piece.getY(),piece.getX(),original)){
@@ -127,6 +163,8 @@ public class Board {
                 && boardarr[piece_y-2][piece_x-2].equals(".")
                 && original.getY()!=piece_y-2 && original.getX()!=piece_x-2){
             Board newmove = current.newBoard(piece,piece_y-2,piece_x-2);
+            newmove.setJumped(true);
+            newmove.setLast(piece);
             boards.add(newmove);
             Piece newpiece = new Piece(piece.getColor(),piece_y-2,piece_x-2);
             jump(newpiece,boards,newmove,piece);
@@ -136,6 +174,8 @@ public class Board {
                 && boardarr[piece_y+2][piece_x+2].equals(".")
                 && original.getY()!=piece_y+2 && original.getX()!=piece_x+2){
             Board newmove = current.newBoard(piece,piece_y+2,piece_x+2);
+            newmove.setJumped(true);
+            newmove.setLast(piece);
             boards.add(newmove);
             Piece newpiece = new Piece(piece.getColor(),piece_y+2,piece_x+2);
             jump(newpiece,boards,newmove,piece);
@@ -145,6 +185,8 @@ public class Board {
                 && boardarr[piece_y-2][piece_x+2].equals(".")
                 && original.getY()!=piece_y-2 && original.getX()!=piece_x+2){
             Board newmove = current.newBoard(piece,piece_y-2,piece_x+2);
+            newmove.setJumped(true);
+            newmove.setLast(piece);
             boards.add(newmove);
             Piece newpiece = new Piece(piece.getColor(),piece_y-2,piece_x+2);
             jump(newpiece,boards,newmove,piece);
@@ -154,6 +196,8 @@ public class Board {
                 && boardarr[piece_y+2][piece_x-2].equals(".")
                 && original.getY()!=piece_y+2 && original.getX()!=piece_x-2){
             Board newmove = current.newBoard(piece,piece_y+2,piece_x-2);
+            newmove.setJumped(true);
+            newmove.setLast(piece);
             boards.add(newmove);
             Piece newpiece = new Piece(piece.getColor(),piece_y+2,piece_x-2);
             jump(newpiece,boards,newmove,piece);
@@ -163,6 +207,8 @@ public class Board {
                 && boardarr[piece_y+2][piece_x].equals(".")
                 && original.getY()!=piece_y+2){
             Board newmove = current.newBoard(piece,piece_y+2,piece_x);
+            newmove.setJumped(true);
+            newmove.setLast(piece);
             boards.add(newmove);
             Piece newpiece = new Piece(piece.getColor(),piece_y+2,piece_x);
             jump(newpiece,boards,newmove,piece);
@@ -172,6 +218,8 @@ public class Board {
                 && boardarr[piece_y-2][piece_x].equals(".")
                 && original.getY()!=piece_y-2){
             Board newmove = current.newBoard(piece,piece_y-2,piece_x);
+            newmove.setJumped(true);
+            newmove.setLast(piece);
             boards.add(newmove);
             Piece newpiece = new Piece(piece.getColor(),piece_y-2,piece_x);
             jump(newpiece,boards,newmove,piece);
@@ -181,15 +229,19 @@ public class Board {
                 && boardarr[piece_y][piece_x-2].equals(".")
                 && original.getX()!=piece_x-2){
             Board newmove = current.newBoard(piece,piece_y,piece_x-2);
+            newmove.setJumped(true);
+            newmove.setLast(piece);
             boards.add(newmove);
             Piece newpiece = new Piece(piece.getColor(),piece_y,piece_x-2);
             jump(newpiece,boards,newmove,piece);
         }
         //right
-        if(piece_x+2>=0&&!boardarr[piece_y][piece_x+1].equals(".")
+        if(piece_x+2<=this.width-1&&!boardarr[piece_y][piece_x+1].equals(".")
                 && boardarr[piece_y][piece_x+2].equals(".")
                 && original.getX()!=piece_x+2){
             Board newmove = current.newBoard(piece,piece_y,piece_x+2);
+            newmove.setJumped(true);
+            newmove.setLast(piece);
             boards.add(newmove);
             Piece newpiece = new Piece(piece.getColor(),piece_y,piece_x+2);
             jump(newpiece,boards,newmove,piece);
@@ -291,34 +343,51 @@ public class Board {
     }
 
     //TODO : FIX THIS BEOFRE CHANGING THE MAP TO 19x19
-    public boolean inCamp(int piecey, int piecex){
-        if(piecey>2){
+    public boolean inCamp(int piecey, int piecex,String side){
+        if(side.equals("B")) {
+            ArrayList<Piece> blackcamp = new ArrayList<>(
+                    List.of(new Piece("B",0,0),
+                            new Piece("B",0,1),
+                            new Piece("B",0,2),
+                            new Piece("B",1,0),
+                            new Piece("B",1,1),
+                            new Piece("B",2,0)));
+            for(Piece p : blackcamp){
+                if(piecey == p.getY() && piecex == p.getX()){
+                    return true;
+                }
+            }
+            return false;
+        }else{
+            ArrayList<Piece> whitecamp = new ArrayList<>(
+                    List.of(new Piece("W",3,5),
+                            new Piece("W",4,5),
+                            new Piece("W",4,4),
+                            new Piece("W",5,3),
+                            new Piece("W",5,4),
+                            new Piece("W",5,5)));
+            for(Piece p : whitecamp){
+                if(piecey == p.getY() && piecex == p.getX()){
+                    return true;
+                }
+            }
             return false;
         }
-        if(piecex>2){
-            return false;
-        }
-        if(piecey==1 && piecex>1){
-            return false;
-        }
-        if(piecey==2 && piecex>0){
-            return false;
-        }
-        return true;
+
     }
 
     public boolean campisEmpty(String side){
         if(side.equals("BLACK")){
             for(int i=0;i<black.size();i++){
                 Piece p = black.get(i);
-                if(inCamp(p.getY(),p.getX())){
+                if(inCamp(p.getY(),p.getX(),"B")){
                     return false;
                 }
             }
         }else{
             for(int i=0;i<white.size();i++){
                 Piece p = white.get(i);
-                if(inCamp(p.getY(),p.getX())){
+                if(inCamp(p.getY(),p.getX(),"W")){
                     return false;
                 }
             }

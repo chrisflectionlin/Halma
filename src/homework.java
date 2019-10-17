@@ -39,36 +39,10 @@ public class homework {
         board.putPieces(preboard);
         //END OF INITIAL SET UP
 
-        /*
         System.out.println(board.toString());
-        System.out.println(board.evaluation());
-        System.out.println(board.campisEmpty());
-
-        String[][] temp = board.construtBoard();
-
-        for(int i=0;i<6;i++){
-            for(int j=0;j<6;j++){
-                System.out.print(temp[i][j] + " ");
-            }
-            System.out.println("\n");
-        }
-        for(Board b : board.possibleMove(new Piece("B",2,2))){
-            System.out.println(b.toString());
-        }
-        */
-        //Piece p = new Piece("B",2,3);
-        //board.addPiece(p);
-        /*
-        for(Board b : board.generateMove("BLACK")){
-            System.out.println(b.toString());
-        }*/
-
-        System.out.println(board.toString());
-        //System.out.println(board.jumpExist(0,1,new Piece("B",2,3)));
-        ArrayList<Board> test = board.jump(new Piece("B",3,2),new ArrayList<Board>(),board,
-                new Piece("B",3,2));
-        ArrayList<Board> test2 = board.possibleMove(new Piece("B",3,2));
+        ArrayList<Board> test2 = board.generateMove("BLACK");
         System.out.println("TEST STARTING");
+        System.out.println(test2.size());
         for(Board b : test2){
             System.out.println(b);
         }
