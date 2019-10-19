@@ -9,17 +9,16 @@ public class homework {
 
     }
 
-    public Board minimax(Board node,int depth, String myside, String side, double alpha, double beta) {
+    public Board minimax(Board node,int depth, Boolean isMaxPlayer, String myside, double alpha, double beta) {
         if (depth == 0) {
             return node;
         }
-        if (myside.equals(side)) {
+        if (isMaxPlayer) {
             double bestval = Double.NEGATIVE_INFINITY;
             Board bestboard = node;
             for (Board b : node.generateMoves(myside)) {
-                Board current = minimax(b, depth - 1, myside,
-                        changeSide(side), alpha, beta);
-                double eval = current.evaluation(side);
+                Board current = minimax(b, depth - 1, false,myside,alpha, beta);
+                double eval = current.evaluation(myside);
                 if (bestval < eval) {
                     bestval = eval;
                     bestboard = b;
@@ -33,10 +32,9 @@ public class homework {
         }else {
             double bestval = Double.POSITIVE_INFINITY;
             Board bestboard = node;
-            for(Board b : node.generateMoves(side)){
-                Board current = minimax(b,depth-1,myside,
-                        changeSide(side),alpha,beta);
-                double eval = current.evaluation(side);
+            for(Board b : node.generateMoves(changeSide(myside))){
+                Board current = minimax(b,depth-1,true,myside,alpha,beta);
+                double eval = current.evaluation(myside);
                 if(bestval>eval){
                     bestval = eval;
                     bestboard = b;
@@ -59,8 +57,6 @@ public class homework {
     }
     public static void main(String[] args) throws FileNotFoundException {
         //INITIAL SET UP FOR THE BOARD
-        int board_width = 6;
-        int board_length = 6;
         String mode;
         String side="";
         Float time;
@@ -89,23 +85,12 @@ public class homework {
         Board board = new Board(preboard);
         //END OF INITIAL SET UP
         System.out.println(board.toString());
-        /*
-        ArrayList<Board> test = board.generateMoves("WHITE");
-        System.out.println(test.size());
-        for(Board b:test){
-            System.out.println(b);
-            System.out.println(b.jumped + "  last: " + b.lasty + ", " + b.lastx);
-        }*/
-
-
-
         homework test = new homework();
-        Board ans = test.minimax(board,2,side,"BLACK",
+        long startTime = System.nanoTime();
+        Board ans = test.minimax(board,3,true,side,
               Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        long endTime   = System.nanoTime();
         System.out.println(ans);
-        /*
-        for(Board b : board.generateMove("WHITE")) {
-            System.out.println(b);
-        }*/
+        System.out.println("PROGRAM FINISHED IN: " + (endTime-startTime)/1000000000 +" seconds");
     }
 }

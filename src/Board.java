@@ -145,10 +145,11 @@ public class Board {
                 }
             }
         }
-        moves.addAll(jump(y,x,new ArrayList<Board>(),this,y,x));
+        moves.addAll(jump(y,x,new ArrayList<Board>(),this,y,x,new ArrayList<Move>()));
         return moves;
     }
-    public ArrayList<Board> jump(int y, int x, ArrayList<Board> moves, Board current, int original_y, int original_x){
+    public ArrayList<Board> jump(int y, int x, ArrayList<Board> moves, Board current,int original_y, int original_x, ArrayList<Move> visited){
+        visited.add(new Move(y,x));
         if(!jumpExist(y,x,original_y,original_x,current)){
             return moves;
         }
@@ -156,82 +157,82 @@ public class Board {
         //down right
         if(y+2<this.length && x+2<this.width&&!boardarr[y+1][x+1].equals(".")
                 && boardarr[y+2][x+2].equals(".")
-                && original_y!=y+2 && original_x!=x+2){
+                && !visited.contains(new Move(y+2,x+2))){
             Board newmove = current.deepMove(y,x,y+2,x+2);
             newmove.setJumped(true);
             newmove.setLast(y,x);
             moves.add(newmove);
-            jump(y+2,x+2,moves,newmove,y,x);
+            jump(y+2,x+2,moves,newmove,y,x,visited);
         }
         //up left
         if(y-2>=0 && x-2>=0&&!boardarr[y-1][x-1].equals(".")
                 && boardarr[y-2][x-2].equals(".")
-                && original_y!=y-2 && original_x!=x-2){
+                && !visited.contains(new Move(y-2,x-2))){
             Board newmove = current.deepMove(y,x,y-2,x-2);
             newmove.setJumped(true);
             newmove.setLast(y,x);
             moves.add(newmove);
-            jump(y-2,x-2,moves,newmove,y,x);
+            jump(y-2,x-2,moves,newmove,y,x,visited);
         }
         //up right
         if(y-2>=0 && x+2<this.width&&!boardarr[y-1][x+1].equals(".")
                 && boardarr[y-2][x+2].equals(".")
-                && original_y!=y-2 && original_x!=x+2){
+                && !visited.contains(new Move(y-2,x+2))){
             Board newmove = current.deepMove(y,x,y-2,x+2);
             newmove.setJumped(true);
             newmove.setLast(y,x);
             moves.add(newmove);
-            jump(y-2,x+2,moves,newmove,y,x);
+            jump(y-2,x+2,moves,newmove,y,x,visited);
         }
         //left down
         if(y+2<this.length && x-2>=0&&!boardarr[y+1][x-1].equals(".")
                 && boardarr[y+2][x-2].equals(".")
-                && original_y!=y+2 && original_x!=x-2){
+                && !visited.contains(new Move(y+2,x-2))){
             Board newmove = current.deepMove(y,x,y+2,x-2);
             newmove.setJumped(true);
             newmove.setLast(y,x);
             moves.add(newmove);
-            jump(y+2,x-2,moves,newmove,y,x);
+            jump(y+2,x-2,moves,newmove,y,x,visited);
         }
         //down
         if(y+2<this.length&&!boardarr[y+1][x].equals(".")
                 && boardarr[y+2][x].equals(".")
-                && original_y!=y+2){
+                && !visited.contains(new Move(y+2,x))){
             Board newmove = current.deepMove(y,x,y+2,x);
             newmove.setJumped(true);
             newmove.setLast(y,x);
             moves.add(newmove);
-            jump(y+2,x,moves,newmove,y,x);
+            jump(y+2,x,moves,newmove,y,x,visited);
         }
         //up
         if(y-2>=0&&!boardarr[y-1][x].equals(".")
                 && boardarr[y-2][x].equals(".")
-                && original_y!=y-2){
+                && !visited.contains(new Move(y-2,x))){
             Board newmove = current.deepMove(y,x,y-2,x);
             newmove.setJumped(true);
             newmove.setLast(y,x);
             moves.add(newmove);
-            jump(y-2,x,moves,newmove,y,x);
+            jump(y-2,x,moves,newmove,y,x,visited);
         }
         //left
         if(x-2>=0&&!boardarr[y][x-1].equals(".")
                 && boardarr[y][x-2].equals(".")
-                && original_x!=x-2){
+                && !visited.contains(new Move(y,x-2))){
             Board newmove = current.deepMove(y,x,y,x-2);
             newmove.setJumped(true);
             newmove.setLast(y,x);
             moves.add(newmove);
-            jump(y,x-2,moves,newmove,y,x);
+            jump(y,x-2,moves,newmove,y,x,visited);
         }
         //right
         if(x+2<this.width&&!boardarr[y][x+1].equals(".")
                 && boardarr[y][x+2].equals(".")
-                && original_x!=x+2){
+                && !visited.contains(new Move(y,x+2))){
             Board newmove = current.deepMove(y,x,y,x+2);
             newmove.setJumped(true);
             newmove.setLast(y,x);
             moves.add(newmove);
-            jump(y,x+2,moves,newmove,y,x);
+            jump(y,x+2,moves,newmove,y,x,visited);
         }
         return moves;
     }
@@ -305,6 +306,7 @@ public class Board {
         return false;
     }
 
+    /*
     public boolean inCamp(int y, int x, String side){
         if(side.equals("BLACK")){
             return  (y==0&&x==0) ||(y==0&&x==1) || (y==0&&x==2) ||
@@ -315,9 +317,9 @@ public class Board {
                     (y==4&&x==5) ||(y==4&&x==4) ||
                     (y==3&&x==5);
         }
-    }
+    }*/
 
-    /*
+
     public boolean inCamp(int y, int x,String side){
         if(side.equals("BLACK")){
             return  (y==0&&x==0) || (y==0&&x==1) || (y==0&&x==2) || (y==0&&x==3) || (y==0&&x==4) ||
@@ -332,79 +334,79 @@ public class Board {
                     (y==12&&x==15) || (y==12&&x==14) || (y==12&&x==13)||
                     (y==11&&x==15) || (y==11&&x==14);
         }
-    }*/
-    /*
+    }
+    //TODO
     public boolean campisEmpty(String side){
         if(side.equals("BLACK")){
-            if(this.board[0][0].equals(".")&&
-                    this.board[0][1].equals(".")&&
-                    this.board[0][2].equals(".")&&
-                    this.board[0][3].equals(".")&&
-                    this.board[0][4].equals(".")&&
-                    this.board[1][0].equals(".")&&
-                    this.board[1][1].equals(".")&&
-                    this.board[1][2].equals(".")&&
-                    this.board[1][3].equals(".")&&
-                    this.board[1][4].equals(".")&&
-                    this.board[2][0].equals(".")&&
-                    this.board[2][1].equals(".")&&
-                    this.board[2][2].equals(".")&&
-                    this.board[2][3].equals(".")&&
-                    this.board[3][0].equals(".")&&
-                    this.board[3][1].equals(".")&&
-                    this.board[3][2].equals(".")&&
-                    this.board[4][0].equals(".")&&
-                    this.board[4][1].equals(".")){
+            if(!this.board[0][0].equals("B")&&
+                    !this.board[0][1].equals("B")&&
+                    !this.board[0][2].equals("B")&&
+                    !this.board[0][3].equals("B")&&
+                    !this.board[0][4].equals("B")&&
+                    !this.board[1][0].equals("B")&&
+                    !this.board[1][1].equals("B")&&
+                    !this.board[1][2].equals("B")&&
+                    !this.board[1][3].equals("B")&&
+                    !this.board[1][4].equals("B")&&
+                    !this.board[2][0].equals("B")&&
+                    !this.board[2][1].equals("B")&&
+                    !this.board[2][2].equals("B")&&
+                    !this.board[2][3].equals("B")&&
+                    !this.board[3][0].equals("B")&&
+                    !this.board[3][1].equals("B")&&
+                    !this.board[3][2].equals("B")&&
+                    !this.board[4][0].equals("B")&&
+                    !this.board[4][1].equals("B")){
                 return true;
             }
             return false;
         }else{
-            if(this.board[15][15].equals(".")&&
-                    this.board[15][14].equals(".")&&
-                    this.board[15][13].equals(".")&&
-                    this.board[15][12].equals(".")&&
-                    this.board[15][11].equals(".")&&
-                    this.board[14][15].equals(".")&&
-                    this.board[14][14].equals(".")&&
-                    this.board[14][13].equals(".")&&
-                    this.board[14][12].equals(".")&&
-                    this.board[14][11].equals(".")&&
-                    this.board[13][15].equals(".")&&
-                    this.board[13][14].equals(".")&&
-                    this.board[13][13].equals(".")&&
-                    this.board[13][12].equals(".")&&
-                    this.board[12][15].equals(".")&&
-                    this.board[12][14].equals(".")&&
-                    this.board[12][13].equals(".")&&
-                    this.board[11][15].equals(".")&&
-                    this.board[11][14].equals(".")){
+            if(!this.board[15][15].equals("W")&&
+                    !this.board[15][14].equals("W")&&
+                    !this.board[15][13].equals("W")&&
+                    !this.board[15][12].equals("W")&&
+                    !this.board[15][11].equals("W")&&
+                    !this.board[14][15].equals("W")&&
+                    !this.board[14][14].equals("W")&&
+                    !this.board[14][13].equals("W")&&
+                    !this.board[14][12].equals("W")&&
+                    !this.board[14][11].equals("W")&&
+                    !this.board[13][15].equals("W")&&
+                    !this.board[13][14].equals("W")&&
+                    !this.board[13][13].equals("W")&&
+                    !this.board[13][12].equals("W")&&
+                    !this.board[12][15].equals("W")&&
+                    !this.board[12][14].equals("W")&&
+                    !this.board[12][13].equals("W")&&
+                    !this.board[11][15].equals("W")&&
+                    !this.board[11][14].equals("W")){
                 return true;
             }
             return false;
-        }*/
-
+        }
+        /*
         public boolean campisEmpty(String side){
             if(side.equals("BLACK")){
-                if(this.board[0][0].equals(".")&&
-                        this.board[0][1].equals(".")&&
-                        this.board[0][2].equals(".")&&
-                        this.board[1][0].equals(".")&&
-                        this.board[1][1].equals(".")&&
-                        this.board[2][0].equals(".")){
+                if(!this.board[0][0].equals("B")&&
+                        !this.board[0][1].equals("B")&&
+                        !this.board[0][2].equals("B")&&
+                        !this.board[1][0].equals("B")&&
+                        !this.board[1][1].equals("B")&&
+                        !this.board[2][0].equals("B")){
                     return true;
                 }
                 return false;
             }else{
-                if(this.board[5][5].equals(".")&&
-                        this.board[5][4].equals(".")&&
-                        this.board[5][3].equals(".")&&
-                        this.board[4][5].equals(".")&&
-                        this.board[4][4].equals(".")&&
-                        this.board[3][5].equals(".")){
+                if(!this.board[5][5].equals("W")&&
+                        !this.board[5][4].equals("W")&&
+                        !this.board[5][3].equals("W")&&
+                        !this.board[4][5].equals("W")&&
+                        !this.board[4][4].equals("W")&&
+                        !this.board[3][5].equals("W")){
                     return true;
                 }
                 return false;
-            }
+            }*/
 
     }
     public Board deepMove(int movefromy, int movefromx, int movetoy, int movetox){
@@ -419,8 +421,22 @@ public class Board {
         ans[movetoy][movetox] = temp;
         return new Board(ans);
     }
+
     public double evaluation(String side){
         double eval = 0;
+        if(won(side)){
+            return Double.POSITIVE_INFINITY;
+        }
+        if(side.equals("BLACK")){
+            if(won("WHITE")){
+                return Double.NEGATIVE_INFINITY;
+            }
+        }
+        if(side.equals("WHITE")){
+            if(won("BLACK")){
+                return Double.NEGATIVE_INFINITY;
+            }
+        }
         if(side.equals("BLACK")){
             for(int i=0;i<this.length;i++){
                 for(int j=0;j<this.width;j++){
@@ -440,6 +456,135 @@ public class Board {
         }
         return -eval;
     }
+    public boolean won(String side){
+        if(side.equals("BLACK")) {
+            if((this.board[15][15].equals("B") ||
+                    this.board[15][14].equals("B")||
+                    this.board[15][13].equals("B")||
+                    this.board[15][12].equals("B")||
+                    this.board[15][11].equals("B")||
+                    this.board[14][15].equals("B")||
+                    this.board[14][14].equals("B")||
+                    this.board[14][13].equals("B")||
+                    this.board[14][12].equals("B")||
+                    this.board[14][11].equals("B")||
+                    this.board[13][15].equals("B")||
+                    this.board[13][14].equals("B")||
+                    this.board[13][13].equals("B")||
+                    this.board[13][12].equals("B")||
+                    this.board[12][15].equals("B")||
+                    this.board[12][14].equals("B")||
+                    this.board[12][13].equals("B")||
+                    this.board[11][15].equals("B")||
+                    this.board[11][14].equals("B")) &&
+                    (!this.board[15][15].equals(".")&&
+                            !this.board[15][14].equals(".")&&
+                            !this.board[15][13].equals(".")&&
+                            !this.board[15][12].equals(".")&&
+                            !this.board[15][11].equals(".")&&
+                            !this.board[14][15].equals(".")&&
+                            !this.board[14][14].equals(".")&&
+                            !this.board[14][13].equals(".")&&
+                            !this.board[14][12].equals(".")&&
+                            !this.board[14][11].equals(".")&&
+                            !this.board[13][15].equals(".")&&
+                            !this.board[13][14].equals(".")&&
+                            !this.board[13][13].equals(".")&&
+                            !this.board[13][12].equals(".")&&
+                            !this.board[12][15].equals(".")&&
+                            !this.board[12][14].equals(".")&&
+                            !this.board[12][13].equals(".")&&
+                            !this.board[11][15].equals(".")&&
+                            !this.board[11][14].equals("."))){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            if((this.board[0][0].equals("W")||
+                    this.board[0][1].equals("W")||
+                    this.board[0][2].equals("W")||
+                    this.board[0][3].equals("W")||
+                    this.board[0][4].equals("W")||
+                    this.board[1][0].equals("W")||
+                    this.board[1][1].equals("W")||
+                    this.board[1][2].equals("W")||
+                    this.board[1][3].equals("W")||
+                    this.board[1][4].equals("W")||
+                    this.board[2][0].equals("W")||
+                    this.board[2][1].equals("W")||
+                    this.board[2][2].equals("W")||
+                    this.board[2][3].equals("W")||
+                    this.board[3][0].equals("W")||
+                    this.board[3][1].equals("W")||
+                    this.board[3][2].equals("W")||
+                    this.board[4][0].equals("W")||
+                    this.board[4][1].equals("W")) &&
+                    (!this.board[0][0].equals(".")&&
+                            !this.board[0][1].equals(".")&&
+                            !this.board[0][2].equals(".")&&
+                            !this.board[0][3].equals(".")&&
+                            !this.board[0][4].equals(".")&&
+                            !this.board[1][0].equals(".")&&
+                            !this.board[1][1].equals(".")&&
+                            !this.board[1][2].equals(".")&&
+                            !this.board[1][3].equals(".")&&
+                            !this.board[1][4].equals(".")&&
+                            !this.board[2][0].equals(".")&&
+                            !this.board[2][1].equals(".")&&
+                            !this.board[2][2].equals(".")&&
+                            !this.board[2][3].equals(".")&&
+                            !this.board[3][0].equals(".")&&
+                            !this.board[3][1].equals(".")&&
+                            !this.board[3][2].equals(".")&&
+                            !this.board[4][0].equals(".")&&
+                            !this.board[4][1].equals("."))){
+                return true;
+            }else{
+                return false;
+            }
+        }
+    }
+    /*
+    public boolean won(String side){
+        if(side.equals("BLACK")){
+            if((this.board[5][5].equals("B")||
+                    this.board[5][4].equals("B")||
+                    this.board[5][3].equals("B")||
+                    this.board[4][5].equals("B")||
+                    this.board[4][4].equals("B")||
+                    this.board[3][5].equals("B")) &&
+                    (!this.board[5][5].equals(".")&&
+                    !this.board[5][4].equals(".")&&
+                    !this.board[5][3].equals(".")&&
+                    !this.board[4][5].equals(".")&&
+                    !this.board[4][4].equals(".")&&
+                    !this.board[3][5].equals("."))){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            if((this.board[0][0].equals("W")||
+                    this.board[0][1].equals("W")||
+                    this.board[0][2].equals("W")||
+                    this.board[1][0].equals("W")||
+                    this.board[1][1].equals("W")||
+                    this.board[2][0].equals("W")) &&
+                    (!this.board[0][0].equals(".")&&
+                            !this.board[0][1].equals(".")&&
+                            !this.board[0][2].equals(".")&&
+                            !this.board[1][0].equals(".")&&
+                            !this.board[1][1].equals(".")&&
+                            !this.board[2][0].equals("."))){
+                return true;
+            }else{
+                return false;
+            }
+        }
+    }*/
+
+
     @Override
     public String toString() {
         String ans = "";
