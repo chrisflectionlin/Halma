@@ -1,466 +1,454 @@
-import com.sun.tools.javac.util.List;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Board {
     int width;
     int length;
-    ArrayList<Piece> white = new ArrayList<>();
-    ArrayList<Piece> black = new ArrayList<>();
+    String[][] board;
     boolean jumped;
-    Piece last;
-    public Board(int in_length, int in_width){
-        this.length = in_length;
-        this.width = in_width;
-        boolean jumped = false;
-    }
-
-
-    public Board(int in_length, int in_width, ArrayList<Piece> white, ArrayList<Piece> black){
-        this.length = in_length;
-        this.width = in_width;
-        this.white = white;
-        this.black = black;
-        boolean jumped = false;
-    }
-
-    public ArrayList<Piece> getBlack() {
-        return black;
-    }
-
-    public ArrayList<Piece> getWhite() {
-        return white;
-    }
-
-    public boolean getJumped(){
-        return jumped;
-    }
-
-    public void setJumped(boolean b){
-        this.jumped = b;
-    }
-
-    public Piece getLast(){
-        return this.last;
-    }
-
-    public void setLast(Piece p){
-        this.last = p;
-    }
-
-    public void addPiece(Piece piece){
-        if(piece.getColor().equals("B")){
-            black.add(piece);
-        }else{
-            white.add(piece);
+    int lasty;
+    int lastx;
+    public Board(ArrayList<ArrayList<String>> preboard){
+        this.width = preboard.get(0).size();
+        this.length = preboard.size();
+        this.board = new String[this.length][this.width];
+        for(int i=0;i<preboard.size();i++){
+            for(int j=0;j<preboard.get(0).size();j++){
+                this.board[i][j] = preboard.get(i).get(j);
+            }
         }
+        this.jumped = false;
+        lasty =-1;
+        lastx =-1;
     }
-    //TODO: FINISH IT
-    public ArrayList<Board> generateMove(String side){
-        //IF CAMP IS  EMPTY, MMOVE AS PLEASE
+    public Board(String[][] preboard){
+        this.width = preboard[0].length;
+        this.length = preboard.length;
+        this.board = preboard;
+        this.jumped = false;
+        this.lasty =-1;
+        this.lastx =-1;
+    }
+
+    public void setJumped(Boolean bo){
+        this.jumped = bo;
+    }
+
+    public void setLast(int y, int x){
+        this.lasty = y;
+        this.lastx = x;
+    }
+
+
+    public ArrayList<Board> generateMoves(String side){
+        String[][] boardarr = this.board;
         ArrayList<Board> moves = new ArrayList<>();
+        //if camp is empty move as please
         if(campisEmpty(side)){
-            if(side.equals("BLACK")){
-                for(Piece p : this.black){
-                    moves.addAll(possibleMove(p));
-                }
-            }else{
-                for(Piece p : this.white){
-                    moves.addAll(possibleMove(p));
+            for(int i=0;i<boardarr.length;i++){
+                for(int j=0;j<boardarr[0].length;j++){
+                    if(side.equals("BLACK")) {
+                        if(boardarr[i][j].equals("B")) {
+                            moves.addAll(this.possibleMoves(i, j, side));
+                        }
+                    }else{
+                        if(boardarr[i][j].equals("W")){
+                            moves.addAll(this.possibleMoves(i,j,side));
+                        }
+                    }
                 }
             }
         }else{
-            //IF CAMP NOT EMPTY, GENERATE MOVES FOR THE PIECES IN CAMP
-            if(side.equals("BLACK")){
-                for(Piece p : this.black){
-                    if(inCamp(p.getY(),p.getX(),p.getColor())){
-                        moves.addAll(possibleMove(p));
+            //if camp is not empty, move the pieces in camp first.
+            for(int i=0;i<boardarr.length;i++) {
+                for (int j = 0; j < boardarr[0].length; j++) {
+                    if(inCamp(i,j,side)){
+                        moves.addAll(this.possibleMoves(i,j,side));
                     }
+                }
+            }
+        }
+        return moves;
+    }
+
+    //Move for 1 single space
+    public ArrayList<Board> possibleMoves(int y, int x,String side){
+        ArrayList<Board> moves = new ArrayList<>();
+        if(inCamp(y,x,side)){
+            if(side.equals("BLACK")){
+                if(y+1<=this.length && x+1<=this.width && this.board[y+1][x+1].equals(".")){
+                    moves.add(this.deepMove(y,x,y+1,x+1));
+                }
+                if(y+1<=this.length && this.board[y+1][x].equals(".")){
+                    moves.add(this.deepMove(y,x,y+1,x));
+                }
+                if(x+1<=this.width && this.board[y][x+1].equals(".")){
+                    moves.add(this.deepMove(y,x,y,x+1));
                 }
             }else{
-                for(Piece p : this.white){
-                    if(inCamp(p.getY(),p.getX(),p.getColor())){
-                        moves.addAll(possibleMove(p));
-                    }
+                if(y-1>=0 && x-1>=0 && this.board[y-1][x-1].equals(".")){
+                    moves.add(this.deepMove(y,x,y-1,x-1));
+                }
+                if(y-1>=0 && this.board[y-1][x].equals(".")){
+                    moves.add(this.deepMove(y,x,y-1,x));
+                }
+                if(x-1>=0 && this.board[y][x-1].equals(".")){
+                    moves.add(this.deepMove(y,x,y,x-1));
+                }
+            }
+        }else{
+            if (y - 1 >= 0 && x - 1 >= 0 && !inCamp(y - 1, x - 1, side)) {
+                if (this.board[y - 1][x - 1].equals(".")) {
+                    //move y,x left up
+                    moves.add(this.deepMove(y,x, y - 1, x - 1));
+                }
+            }
+            if (y + 1 < this.length && x + 1 < this.width && !inCamp(y + 1, x + 1, side)) {
+                if (this.board[y + 1][x + 1].equals(".")) {
+                    //move y,x right down
+                    moves.add(this.deepMove(y,x, y + 1, x + 1));
+                }
+            }
+            if (y + 1 < this.length && x - 1 >= 0 && !inCamp(y + 1, x - 1, side)) {
+                if (this.board[y + 1][x - 1].equals(".")) {
+                    //move y,x left down
+                    moves.add(this.deepMove(y,x, y + 1, x - 1));
+                }
+            }
+            if (y - 1 >= 0 && x + 1 < this.width && !inCamp(y - 1, x + 1, side)) {
+                if (this.board[y - 1][x + 1].equals(".")) {
+                    //move y,x right up
+                    moves.add(this.deepMove(y,x, y - 1, x + 1));
+                }
+            }
+            if (y - 1 >= 0 && !inCamp(y - 1, x, side)) {
+                if (this.board[y - 1][x].equals(".")) {
+                    //move y,x up
+                    moves.add(this.deepMove(y,x, y - 1, x));
+                }
+            }
+            if (y + 1 < this.length && !inCamp(y + 1, x, side)) {
+                if (this.board[y + 1][x].equals(".")) {
+                    //move y,x down
+                    moves.add(this.deepMove(y,x, y + 1, x));
+                }
+            }
+            if (x - 1 >= 0 && !inCamp(y, x - 1, side)) {
+                if (this.board[y][x - 1].equals(".")) {
+                    //move y,x left
+                    moves.add(this.deepMove(y,x, y, x - 1));
+                }
+            }
+            if (x + 1 < this.width && !inCamp(y, x + 1, side)) {
+                if (this.board[y][x + 1].equals(".")) {
+                    //move y,x right
+                    moves.add(this.deepMove(y,x, y, x + 1));
                 }
             }
         }
-        return moves;
-        //IF CAMP IS EMPTY, MOVE AS PLEASE
-    }
-
-    //TODO: IF PIECE IN CAMP, JUST GO FURTHER AWAY
-    //POSSIBLE MOVE FOR 1 SINGLE PIECE
-    public ArrayList<Board> possibleMove(Piece piece){
-        int piece_y = piece.getY();
-        int piece_x = piece.getX();
-        ArrayList<Board> moves = new ArrayList<>();
-        String[][] boardarr = construtBoard();
-        //GET ALL E MOVES, 8 DIRECTIONS
-        if(piece_y-1>=0 && piece_x-1>=0 &&!inCamp(piece_y-1,piece_x-1,piece.getColor())){
-            if(boardarr[piece_y-1][piece_x-1].equals(".") ){
-                //move piece left up
-                moves.add(this.newBoard(piece,piece_y-1,piece_x-1));
-            }
-        }
-        if(piece_y+1<this.length && piece_x+1<this.width &&!inCamp(piece_y+1,piece_x+1,piece.getColor())){
-            if(boardarr[piece_y+1][piece_x+1].equals(".")){
-                //move piece right down
-                moves.add(this.newBoard(piece,piece_y+1,piece_x+1));
-            }
-        }
-        if(piece_y+1<this.length && piece_x-1>=0&&!inCamp(piece_y+1,piece_x-1,piece.getColor())){
-            if(boardarr[piece_y+1][piece_x-1].equals(".")){
-                //move piece left down
-                moves.add(this.newBoard(piece,piece_y+1,piece_x-1));
-            }
-        }
-        if(piece_y-1>=0 && piece_x+1<this.width&&!inCamp(piece_y-1,piece_x+1,piece.getColor())){
-            if(boardarr[piece_y-1][piece_x+1].equals(".")){
-                //move piece right up
-                moves.add(this.newBoard(piece,piece_y-1,piece_x+1));
-            }
-        }
-        if(piece_y-1>=0&&!inCamp(piece_y-1,piece_x,piece.getColor())) {
-            if (boardarr[piece_y-1][piece_x].equals(".")) {
-                //move piece up
-                moves.add(this.newBoard(piece,piece_y-1,piece_x));
-            }
-        }
-        if(piece_y+1<this.length &&!inCamp(piece_y+1,piece_x,piece.getColor())){
-            if(boardarr[piece_y+1][piece_x].equals(".")){
-                //move piece down
-                moves.add(this.newBoard(piece,piece_y+1,piece_x));
-            }
-        }
-        if(piece_x-1>=0&&!inCamp(piece_y,piece_x-1,piece.getColor())){
-            if(boardarr[piece_y][piece_x-1].equals(".")){
-                //move piece left
-                moves.add(this.newBoard(piece,piece_y,piece_x-1));
-            }
-        }
-        if(piece_x+1<this.width&&!inCamp(piece_y,piece_x+1,piece.getColor())){
-            if(boardarr[piece_y][piece_x+1].equals(".")){
-                //move piece right
-                moves.add(this.newBoard(piece,piece_y,piece_x+1));
-            }
-        }
-        //GET ALL POSSIBLE JUMP MOVES, 8 DIRECTIONS
-        moves.addAll(jump(piece,new ArrayList<Board>(),this,piece));
+        moves.addAll(jump(y,x,new ArrayList<Board>(),this,y,x));
         return moves;
     }
-
-    public ArrayList<Board> jump(Piece piece, ArrayList<Board> boards,Board current,Piece original){
-        String[][] boardarr = current.construtBoard();
-        if(!jumpExist(piece.getY(),piece.getX(),original)){
-            return boards;
+    public ArrayList<Board> jump(int y, int x, ArrayList<Board> moves, Board current, int original_y, int original_x){
+        if(!jumpExist(y,x,original_y,original_x,current)){
+            return moves;
         }
-        int piece_y = piece.getY();
-        int piece_x = piece.getX();
-        //left up
-        if(piece_y-2>=0 && piece_x-2>=0&&!boardarr[piece_y-1][piece_x-1].equals(".")
-                && boardarr[piece_y-2][piece_x-2].equals(".")
-                && original.getY()!=piece_y-2 && original.getX()!=piece_x-2){
-            Board newmove = current.newBoard(piece,piece_y-2,piece_x-2);
-            newmove.setJumped(true);
-            newmove.setLast(piece);
-            boards.add(newmove);
-            Piece newpiece = new Piece(piece.getColor(),piece_y-2,piece_x-2);
-            jump(newpiece,boards,newmove,piece);
-        }
+        String[][] boardarr = current.board;
         //down right
-        if(piece_y+2<this.length && piece_x+2<this.width&&!boardarr[piece_y+1][piece_x+1].equals(".")
-                && boardarr[piece_y+2][piece_x+2].equals(".")
-                && original.getY()!=piece_y+2 && original.getX()!=piece_x+2){
-            Board newmove = current.newBoard(piece,piece_y+2,piece_x+2);
+        if(y+2<this.length && x+2<this.width&&!boardarr[y+1][x+1].equals(".")
+                && boardarr[y+2][x+2].equals(".")
+                && original_y!=y+2 && original_x!=x+2){
+            Board newmove = current.deepMove(y,x,y+2,x+2);
             newmove.setJumped(true);
-            newmove.setLast(piece);
-            boards.add(newmove);
-            Piece newpiece = new Piece(piece.getColor(),piece_y+2,piece_x+2);
-            jump(newpiece,boards,newmove,piece);
+            newmove.setLast(y,x);
+            moves.add(newmove);
+            jump(y+2,x+2,moves,newmove,y,x);
+        }
+        //up left
+        if(y-2>=0 && x-2>=0&&!boardarr[y-1][x-1].equals(".")
+                && boardarr[y-2][x-2].equals(".")
+                && original_y!=y-2 && original_x!=x-2){
+            Board newmove = current.deepMove(y,x,y-2,x-2);
+            newmove.setJumped(true);
+            newmove.setLast(y,x);
+            moves.add(newmove);
+            jump(y-2,x-2,moves,newmove,y,x);
         }
         //up right
-        if(piece_y-2>=0 && piece_x+2<this.width&&!boardarr[piece_y-1][piece_x+1].equals(".")
-                && boardarr[piece_y-2][piece_x+2].equals(".")
-                && original.getY()!=piece_y-2 && original.getX()!=piece_x+2){
-            Board newmove = current.newBoard(piece,piece_y-2,piece_x+2);
+        if(y-2>=0 && x+2<this.width&&!boardarr[y-1][x+1].equals(".")
+                && boardarr[y-2][x+2].equals(".")
+                && original_y!=y-2 && original_x!=x+2){
+            Board newmove = current.deepMove(y,x,y-2,x+2);
             newmove.setJumped(true);
-            newmove.setLast(piece);
-            boards.add(newmove);
-            Piece newpiece = new Piece(piece.getColor(),piece_y-2,piece_x+2);
-            jump(newpiece,boards,newmove,piece);
+            newmove.setLast(y,x);
+            moves.add(newmove);
+            jump(y-2,x+2,moves,newmove,y,x);
         }
         //left down
-        if(piece_y+2<this.length && piece_x-2>=0&&!boardarr[piece_y+1][piece_x-1].equals(".")
-                && boardarr[piece_y+2][piece_x-2].equals(".")
-                && original.getY()!=piece_y+2 && original.getX()!=piece_x-2){
-            Board newmove = current.newBoard(piece,piece_y+2,piece_x-2);
+        if(y+2<this.length && x-2>=0&&!boardarr[y+1][x-1].equals(".")
+                && boardarr[y+2][x-2].equals(".")
+                && original_y!=y+2 && original_x!=x-2){
+            Board newmove = current.deepMove(y,x,y+2,x-2);
             newmove.setJumped(true);
-            newmove.setLast(piece);
-            boards.add(newmove);
-            Piece newpiece = new Piece(piece.getColor(),piece_y+2,piece_x-2);
-            jump(newpiece,boards,newmove,piece);
+            newmove.setLast(y,x);
+            moves.add(newmove);
+            jump(y+2,x-2,moves,newmove,y,x);
         }
         //down
-        if(piece_y+2<this.length&&!boardarr[piece_y+1][piece_x].equals(".")
-                && boardarr[piece_y+2][piece_x].equals(".")
-                && original.getY()!=piece_y+2){
-            Board newmove = current.newBoard(piece,piece_y+2,piece_x);
+        if(y+2<this.length&&!boardarr[y+1][x].equals(".")
+                && boardarr[y+2][x].equals(".")
+                && original_y!=y+2){
+            Board newmove = current.deepMove(y,x,y+2,x);
             newmove.setJumped(true);
-            newmove.setLast(piece);
-            boards.add(newmove);
-            Piece newpiece = new Piece(piece.getColor(),piece_y+2,piece_x);
-            jump(newpiece,boards,newmove,piece);
+            newmove.setLast(y,x);
+            moves.add(newmove);
+            jump(y+2,x,moves,newmove,y,x);
         }
         //up
-        if(piece_y-2>=0&&!boardarr[piece_y-1][piece_x].equals(".")
-                && boardarr[piece_y-2][piece_x].equals(".")
-                && original.getY()!=piece_y-2){
-            Board newmove = current.newBoard(piece,piece_y-2,piece_x);
+        if(y-2>=0&&!boardarr[y-1][x].equals(".")
+                && boardarr[y-2][x].equals(".")
+                && original_y!=y-2){
+            Board newmove = current.deepMove(y,x,y-2,x);
             newmove.setJumped(true);
-            newmove.setLast(piece);
-            boards.add(newmove);
-            Piece newpiece = new Piece(piece.getColor(),piece_y-2,piece_x);
-            jump(newpiece,boards,newmove,piece);
+            newmove.setLast(y,x);
+            moves.add(newmove);
+            jump(y-2,x,moves,newmove,y,x);
         }
         //left
-        if(piece_x-2>=0&&!boardarr[piece_y][piece_x-1].equals(".")
-                && boardarr[piece_y][piece_x-2].equals(".")
-                && original.getX()!=piece_x-2){
-            Board newmove = current.newBoard(piece,piece_y,piece_x-2);
+        if(x-2>=0&&!boardarr[y][x-1].equals(".")
+                && boardarr[y][x-2].equals(".")
+                && original_x!=x-2){
+            Board newmove = current.deepMove(y,x,y,x-2);
             newmove.setJumped(true);
-            newmove.setLast(piece);
-            boards.add(newmove);
-            Piece newpiece = new Piece(piece.getColor(),piece_y,piece_x-2);
-            jump(newpiece,boards,newmove,piece);
+            newmove.setLast(y,x);
+            moves.add(newmove);
+            jump(y,x-2,moves,newmove,y,x);
         }
         //right
-        if(piece_x+2<=this.width-1&&!boardarr[piece_y][piece_x+1].equals(".")
-                && boardarr[piece_y][piece_x+2].equals(".")
-                && original.getX()!=piece_x+2){
-            Board newmove = current.newBoard(piece,piece_y,piece_x+2);
+        if(x+2<this.width&&!boardarr[y][x+1].equals(".")
+                && boardarr[y][x+2].equals(".")
+                && original_x!=x+2){
+            Board newmove = current.deepMove(y,x,y,x+2);
             newmove.setJumped(true);
-            newmove.setLast(piece);
-            boards.add(newmove);
-            Piece newpiece = new Piece(piece.getColor(),piece_y,piece_x+2);
-            jump(newpiece,boards,newmove,piece);
+            newmove.setLast(y,x);
+            moves.add(newmove);
+            jump(y,x+2,moves,newmove,y,x);
         }
-        return boards;
-
+        return moves;
     }
 
-    public boolean jumpExist(int piece_y, int piece_x,Piece original){
-        String[][] boardarr = construtBoard();
+    public boolean jumpExist(int y,int x, int original_y, int original_x,Board current){
+        String[][] boardarr = current.board;
         //jump up left
-        if(piece_y-2>=0 && piece_x-2>=0){
-            if(!boardarr[piece_y-1][piece_x-1].equals(".") && boardarr[piece_y-2][piece_x-2].equals(".") ){
-                if(original.getY()!=piece_y-2 && original.getX()!=piece_x-2) {
+        if(y-2>=0 && x-2>=0){
+            if(!boardarr[y-1][x-1].equals(".") && boardarr[y-2][x-2].equals(".") ){
+                if(original_y!=y-2 && original_x!=x-2) {
                     return true;
                 }
             }
         }
         //jump down right
-        if(piece_y+2<this.length && piece_x+2<this.width){
-            if(!boardarr[piece_y+1][piece_x+1].equals(".") && boardarr[piece_y+2][piece_x+2].equals(".") ){
-                if(original.getY()!=piece_y+2 && original.getX()!=piece_x+2) {
+        if(y+2<this.length && x+2<this.width){
+            if(!boardarr[y+1][x+1].equals(".") && boardarr[y+2][x+2].equals(".") ){
+                if(original_y!=y+2 && original_x!=x+2) {
                     return true;
                 }
             }
         }
         //jump down left
-        if(piece_y+2<this.length && piece_x-2>=0){
-            if(!boardarr[piece_y+1][piece_x-1].equals(".") && boardarr[piece_y+2][piece_x-2].equals(".") ){
-                if(original.getY()!=piece_y+2 && original.getX()!=piece_x-2) {
+        if(y+2<this.length && x-2>=0){
+            if(!boardarr[y+1][x-1].equals(".") && boardarr[y+2][x-2].equals(".") ){
+                if(original_y!=y+2 && original_x!=x-2) {
                     return true;
                 }
             }
         }
         //jump up right
-        if(piece_y-2>=0 && piece_x+2<this.width){
-            if(!boardarr[piece_y-1][piece_x+1].equals(".") && boardarr[piece_y-2][piece_x+2].equals(".") ){
-                if(original.getY()!=piece_y-2 && original.getX()!=piece_x+2) {
+        if(y-2>=0 && x+2<this.width){
+            if(!boardarr[y-1][x+1].equals(".") && boardarr[y-2][x+2].equals(".") ){
+                if(original_y!=y-2 && original_x!=x+2) {
                     return true;
                 }
             }
         }
         //jump down
-        if(piece_y+2<this.length){
-            if(!boardarr[piece_y+1][piece_x].equals(".") && boardarr[piece_y+2][piece_x].equals(".") ){
-                if(original.getY()!=piece_y+2) {
+        if(y+2<this.length){
+            if(!boardarr[y+1][x].equals(".") && boardarr[y+2][x].equals(".") ){
+                if(original_y!=y+2) {
                     return true;
                 }
             }
         }
         //jump up
-        if(piece_y-2>=0){
-            if(!boardarr[piece_y-1][piece_x].equals(".") && boardarr[piece_y-2][piece_x].equals(".") ){
-                if(original.getY()!=piece_y-2) {
+        if(y-2>=0){
+            if(!boardarr[y-1][x].equals(".") && boardarr[y-2][x].equals(".") ){
+                if(original_y!=y-2) {
                     return true;
                 }
             }
         }
         //jump left
-        if(piece_x-2>=0){
-            if(!boardarr[piece_y][piece_x-1].equals(".") && boardarr[piece_y][piece_x-2].equals(".") ){
-                if(original.getX()!=piece_x-2) {
+        if(x-2>=0){
+            if(!boardarr[y][x-1].equals(".") && boardarr[y][x-2].equals(".") ){
+                if(original_x!=x-2) {
                     return true;
                 }
             }
         }
         //jump right
-        if(piece_x+2<this.width){
-            if(!boardarr[piece_y][piece_x+1].equals(".") && boardarr[piece_y][piece_x+2].equals(".") ){
-                if(original.getX()!=piece_x+2) {
+        if(x+2<this.width){
+            if(!boardarr[y][x+1].equals(".") && boardarr[y][x+2].equals(".") ){
+                if(original_x!=x+2) {
                     return true;
                 }
             }
         }
         return false;
     }
-    public Board newBoard(Piece piece,int movey, int movex){
-        if(piece.getColor().equals("B")){
-            ArrayList<Piece> clone = new ArrayList<>();
-            for(Piece p : this.black){
-                if(p.getX() == piece.getX() && p.getY()==piece.getY()){
-                    clone.add(new Piece(piece.getColor(),movey,movex));
-                }else {
-                    clone.add(p.clone());
-                }
-            }
-            return new Board(this.length,this.width,this.white,clone);
+
+    public boolean inCamp(int y, int x, String side){
+        if(side.equals("BLACK")){
+            return  (y==0&&x==0) ||(y==0&&x==1) || (y==0&&x==2) ||
+                    (y==1&&x==0) ||(y==1&&x==1) ||
+                    (y==2&&x==0);
         }else{
-            ArrayList<Piece> clone = new ArrayList<>();
-            for(Piece p : this.white){
-                if(p.getX() == piece.getX() && p.getY()==piece.getY()){
-                    clone.add(new Piece(piece.getColor(),movey,movex));
-                }else {
-                    clone.add(p.clone());
-                }
-            }
-            return new Board(this.length,this.width,clone,this.black);
+            return  (y==5&&x==5) ||(y==5&&x==4) || (y==5&&x==3) ||
+                    (y==4&&x==5) ||(y==4&&x==4) ||
+                    (y==3&&x==5);
         }
     }
 
-    //TODO : FIX THIS BEOFRE CHANGING THE MAP TO 19x19
-    public boolean inCamp(int piecey, int piecex,String side){
-        if(side.equals("B")) {
-            ArrayList<Piece> blackcamp = new ArrayList<>(
-                    List.of(new Piece("B",0,0),
-                            new Piece("B",0,1),
-                            new Piece("B",0,2),
-                            new Piece("B",1,0),
-                            new Piece("B",1,1),
-                            new Piece("B",2,0)));
-            for(Piece p : blackcamp){
-                if(piecey == p.getY() && piecex == p.getX()){
-                    return true;
-                }
-            }
-            return false;
+    /*
+    public boolean inCamp(int y, int x,String side){
+        if(side.equals("BLACK")){
+            return  (y==0&&x==0) || (y==0&&x==1) || (y==0&&x==2) || (y==0&&x==3) || (y==0&&x==4) ||
+                    (y==1&&x==0) || (y==1&&x==1) || (y==1&&x==2) || (y==1&&x==3) || (y==1&&x==4) ||
+                    (y==2&&x==0) || (y==2&&x==1) || (y==2&&x==2) || (y==2&&x==3) ||
+                    (y==3&&x==0) || (y==3&&x==1) || (y==3&&x==2) ||
+                    (y==4&&x==0) || (y==4&&x==1);
         }else{
-            ArrayList<Piece> whitecamp = new ArrayList<>(
-                    List.of(new Piece("W",3,5),
-                            new Piece("W",4,5),
-                            new Piece("W",4,4),
-                            new Piece("W",5,3),
-                            new Piece("W",5,4),
-                            new Piece("W",5,5)));
-            for(Piece p : whitecamp){
-                if(piecey == p.getY() && piecex == p.getX()){
-                    return true;
-                }
-            }
-            return false;
+            return  (y==15&&x==15) || (y==15&&x==14) || (y==15&&x==13)|| (y==15&&x==12)|| (y==15&&x==11)||
+                    (y==14&&x==15) || (y==14&&x==14) || (y==14&&x==13)|| (y==14&&x==12)|| (y==14&&x==11)||
+                    (y==13&&x==15) || (y==13&&x==14) || (y==13&&x==13)|| (y==13&&x==12)||
+                    (y==12&&x==15) || (y==12&&x==14) || (y==12&&x==13)||
+                    (y==11&&x==15) || (y==11&&x==14);
         }
-
-    }
-
+    }*/
+    /*
     public boolean campisEmpty(String side){
         if(side.equals("BLACK")){
-            for(int i=0;i<black.size();i++){
-                Piece p = black.get(i);
-                if(inCamp(p.getY(),p.getX(),"B")){
-                    return false;
-                }
+            if(this.board[0][0].equals(".")&&
+                    this.board[0][1].equals(".")&&
+                    this.board[0][2].equals(".")&&
+                    this.board[0][3].equals(".")&&
+                    this.board[0][4].equals(".")&&
+                    this.board[1][0].equals(".")&&
+                    this.board[1][1].equals(".")&&
+                    this.board[1][2].equals(".")&&
+                    this.board[1][3].equals(".")&&
+                    this.board[1][4].equals(".")&&
+                    this.board[2][0].equals(".")&&
+                    this.board[2][1].equals(".")&&
+                    this.board[2][2].equals(".")&&
+                    this.board[2][3].equals(".")&&
+                    this.board[3][0].equals(".")&&
+                    this.board[3][1].equals(".")&&
+                    this.board[3][2].equals(".")&&
+                    this.board[4][0].equals(".")&&
+                    this.board[4][1].equals(".")){
+                return true;
             }
+            return false;
         }else{
-            for(int i=0;i<white.size();i++){
-                Piece p = white.get(i);
-                if(inCamp(p.getY(),p.getX(),"W")){
-                    return false;
+            if(this.board[15][15].equals(".")&&
+                    this.board[15][14].equals(".")&&
+                    this.board[15][13].equals(".")&&
+                    this.board[15][12].equals(".")&&
+                    this.board[15][11].equals(".")&&
+                    this.board[14][15].equals(".")&&
+                    this.board[14][14].equals(".")&&
+                    this.board[14][13].equals(".")&&
+                    this.board[14][12].equals(".")&&
+                    this.board[14][11].equals(".")&&
+                    this.board[13][15].equals(".")&&
+                    this.board[13][14].equals(".")&&
+                    this.board[13][13].equals(".")&&
+                    this.board[13][12].equals(".")&&
+                    this.board[12][15].equals(".")&&
+                    this.board[12][14].equals(".")&&
+                    this.board[12][13].equals(".")&&
+                    this.board[11][15].equals(".")&&
+                    this.board[11][14].equals(".")){
+                return true;
+            }
+            return false;
+        }*/
+
+        public boolean campisEmpty(String side){
+            if(side.equals("BLACK")){
+                if(this.board[0][0].equals(".")&&
+                        this.board[0][1].equals(".")&&
+                        this.board[0][2].equals(".")&&
+                        this.board[1][0].equals(".")&&
+                        this.board[1][1].equals(".")&&
+                        this.board[2][0].equals(".")){
+                    return true;
                 }
+                return false;
+            }else{
+                if(this.board[5][5].equals(".")&&
+                        this.board[5][4].equals(".")&&
+                        this.board[5][3].equals(".")&&
+                        this.board[4][5].equals(".")&&
+                        this.board[4][4].equals(".")&&
+                        this.board[3][5].equals(".")){
+                    return true;
+                }
+                return false;
+            }
+
+    }
+    public Board deepMove(int movefromy, int movefromx, int movetoy, int movetox){
+        String[][] ans = new String[this.board.length][this.board.length];
+        for(int i=0;i<ans.length;i++){
+            for(int j=0;j<ans[0].length;j++){
+                ans[i][j] = this.board[i][j];
             }
         }
-        return true;
+        String temp = ans[movefromy][movefromx];
+        ans[movefromy][movefromx] = ".";
+        ans[movetoy][movetox] = temp;
+        return new Board(ans);
     }
-
-
     public double evaluation(String side){
         double eval = 0;
         if(side.equals("BLACK")){
-            for(int i=0;i<black.size();i++){
-                Piece current = black.get(i);
-                eval+= Math.sqrt(Math.pow(current.getY() - length-1,2) + Math.pow(current.getX()-width-1,2));
+            for(int i=0;i<this.length;i++){
+                for(int j=0;j<this.width;j++){
+                    if(this.board[i][j].equals("B")){
+                        eval += Math.sqrt(Math.pow(i-this.length-1,2)+Math.pow(j-this.width-1,2));
+                    }
+                }
             }
         }else{
-            for(int i=0;i<white.size();i++){
-                Piece current = white.get(i);
-                eval+= Math.sqrt(Math.pow(current.getY() - 0,2) + Math.pow(current.getX()-0,2));
+            for(int i=0;i<this.length;i++){
+                for(int j=0;j<this.width;j++){
+                    if(this.board[i][j].equals("W")){
+                        eval += Math.sqrt(Math.pow(i,2)+Math.pow(j,2));
+                    }
+                }
             }
         }
         return -eval;
     }
-
-
-    public void putPieces(ArrayList<ArrayList<String>> input){
-        for(int i=0;i<input.size();i++){
-            for(int j=0;j<input.get(0).size();j++){
-                if(input.get(i).get(j).equals("B")){
-                    this.addPiece(new Piece("B",i,j));
-                }else if(input.get(i).get(j).equals("W")){
-                    this.addPiece(new Piece("W",i,j));
-                }
+    @Override
+    public String toString() {
+        String ans = "";
+        for(int i=0;i<this.length;i++){
+            for(int j=0;j<this.width;j++){
+                ans += this.board[i][j] + " ";
             }
-        }
-    }
-
-    private String[][] construtBoard(){
-        String[][] ans = new String[length][width];
-        for(int i=0;i<length;i++){
-            Arrays.fill(ans[i],".");
-        }
-        for (Piece current : white) {
-            ans[current.getY()][current.getX()] = current.getColor();
-        }
-        for (Piece current : black) {
-            ans[current.getY()][current.getX()] = current.getColor();
+            ans+= "\n";
         }
         return ans;
-    }
-
-    public String toString(){
-        String output = "";
-        String[][] boardarray = new String[length][width];
-        for (Piece current : white) {
-            boardarray[current.getY()][current.getX()] = current.getColor();
-        }
-        for (Piece current : black) {
-            boardarray[current.getY()][current.getX()] = current.getColor();
-        }
-        for(int i=0;i<length;i++){
-            for(int j=0;j<width;j++){
-                if(boardarray[i][j] == null){
-                    boardarray[i][j] = ".";
-                }
-            }
-        }
-        for(int i=0;i<length;i++){
-            for(int j=0;j<width;j++){
-                output += boardarray[i][j] + " ";
-            }
-            output += "\n";
-        }
-        return output;
     }
 }

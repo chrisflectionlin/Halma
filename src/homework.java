@@ -5,8 +5,58 @@ import java.util.Scanner;
 
 public class homework {
 
+    public homework(){
 
+    }
 
+    public Board minimax(Board node,int depth, String myside, String side, double alpha, double beta) {
+        if (depth == 0) {
+            return node;
+        }
+        if (myside.equals(side)) {
+            double bestval = Double.NEGATIVE_INFINITY;
+            Board bestboard = node;
+            for (Board b : node.generateMoves(myside)) {
+                Board current = minimax(b, depth - 1, myside,
+                        changeSide(side), alpha, beta);
+                double eval = current.evaluation(side);
+                if (bestval < eval) {
+                    bestval = eval;
+                    bestboard = b;
+                }
+                alpha = Math.max(alpha, bestval);
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+            return bestboard;
+        }else {
+            double bestval = Double.POSITIVE_INFINITY;
+            Board bestboard = node;
+            for(Board b : node.generateMoves(side)){
+                Board current = minimax(b,depth-1,myside,
+                        changeSide(side),alpha,beta);
+                double eval = current.evaluation(side);
+                if(bestval>eval){
+                    bestval = eval;
+                    bestboard = b;
+                }
+                beta = Math.min(beta,bestval);
+                if(beta<=alpha){
+                    break;
+                }
+            }
+            return bestboard;
+        }
+    }
+
+    public String changeSide(String side){
+        if(side.equals("BLACK")){
+            return "WHITE";
+        }else{
+            return "BLACK";
+        }
+    }
     public static void main(String[] args) throws FileNotFoundException {
         //INITIAL SET UP FOR THE BOARD
         int board_width = 6;
@@ -35,16 +85,27 @@ public class homework {
             }
             count++;
         }
-        Board board = new Board(preboard.size(),preboard.get(0).size());
-        board.putPieces(preboard);
-        //END OF INITIAL SET UP
 
+        Board board = new Board(preboard);
+        //END OF INITIAL SET UP
         System.out.println(board.toString());
-        ArrayList<Board> test2 = board.generateMove("BLACK");
-        System.out.println("TEST STARTING");
-        System.out.println(test2.size());
-        for(Board b : test2){
+        /*
+        ArrayList<Board> test = board.generateMoves("WHITE");
+        System.out.println(test.size());
+        for(Board b:test){
             System.out.println(b);
-        }
+            System.out.println(b.jumped + "  last: " + b.lasty + ", " + b.lastx);
+        }*/
+
+
+
+        homework test = new homework();
+        Board ans = test.minimax(board,2,side,"BLACK",
+              Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        System.out.println(ans);
+        /*
+        for(Board b : board.generateMove("WHITE")) {
+            System.out.println(b);
+        }*/
     }
 }
