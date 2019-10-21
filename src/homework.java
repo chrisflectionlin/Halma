@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -8,7 +9,6 @@ public class homework {
     public homework(){
 
     }
-
     public Board minimax(Board node,int depth, Boolean isMaxPlayer, String myside, double alpha, double beta) {
         if (depth == 0) {
             return node;
@@ -84,13 +84,44 @@ public class homework {
 
         Board board = new Board(preboard);
         //END OF INITIAL SET UP
-        System.out.println(board.toString());
+        //System.out.println(board.toString());
+
+        //start playing
         homework test = new homework();
-        long startTime = System.nanoTime();
-        Board ans = test.minimax(board,3,true,side,
+        long startTime = System.currentTimeMillis();
+
+        Board ans = test.minimax(board,5,true,side,
               Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-        long endTime   = System.nanoTime();
-        System.out.println(ans);
-        System.out.println("PROGRAM FINISHED IN: " + (endTime-startTime)/1000000000 +" seconds");
+
+        long endTime   = System.currentTimeMillis();
+        //System.out.println(ans);
+        String ans_str = "";
+        if(!ans.jumped){
+            ans_str = "E " + ans.lastx + "," + ans.lasty + " " + ans.currentx + "," + ans.currenty;
+        }else{
+            Board last = ans;
+            ArrayList<Move> moves = new ArrayList<>();
+            while(true){
+                if(!last.last_board.jumped){
+                    moves.add(new Move(last.currenty,last.currentx));
+                    moves.add(new Move(last.lasty,last.lastx));
+                    break;
+                }else{
+                    moves.add(new Move(last.currenty,last.currentx));
+                    last = last.last_board;
+                }
+            }
+            for(int i=moves.size()-1;i>=1;i--){
+                Move current = moves.get(i);
+                Move last_move = moves.get(i-1);
+                ans_str += "J " + current.x + "," + current.y + " " + last_move.x + "," + last_move.y + "\n";
+            }
+            ans_str = ans_str.substring(0,ans_str.length()-1);
+        }
+        PrintWriter out = new PrintWriter("output.txt");
+        out.print(ans_str);
+        out.close();
+        //System.out.println(ans_str);
+        System.out.println("PROGRAM FINISHED IN: " + (endTime-startTime)/10 +" seconds");
     }
 }

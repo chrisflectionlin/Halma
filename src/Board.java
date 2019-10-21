@@ -5,8 +5,11 @@ public class Board {
     int length;
     String[][] board;
     boolean jumped;
+    Board last_board;
     int lasty;
     int lastx;
+    int currenty;
+    int currentx;
     public Board(ArrayList<ArrayList<String>> preboard){
         this.width = preboard.get(0).size();
         this.length = preboard.size();
@@ -17,8 +20,12 @@ public class Board {
             }
         }
         this.jumped = false;
-        lasty =-1;
-        lastx =-1;
+        this.lasty =-1;
+        this.lastx =-1;
+        this.currenty = -1;
+        this.currentx = -1;
+        this.last_board = null;
+
     }
     public Board(String[][] preboard){
         this.width = preboard[0].length;
@@ -27,6 +34,10 @@ public class Board {
         this.jumped = false;
         this.lasty =-1;
         this.lastx =-1;
+        this.currenty = -1;
+        this.currentx = -1;
+        this.last_board = null;
+
     }
 
     public void setJumped(Boolean bo){
@@ -36,6 +47,15 @@ public class Board {
     public void setLast(int y, int x){
         this.lasty = y;
         this.lastx = x;
+    }
+
+    public void setCurrent(int y, int x){
+        this.currenty = y;
+        this.currentx = x;
+    }
+
+    public void setLast_board(Board b){
+        this.last_board = b;
     }
 
 
@@ -61,8 +81,24 @@ public class Board {
             //if camp is not empty, move the pieces in camp first.
             for(int i=0;i<boardarr.length;i++) {
                 for (int j = 0; j < boardarr[0].length; j++) {
-                    if(inCamp(i,j,side)){
+                    if(inCamp(i,j,side) && boardarr[i][j].equals(side.substring(0,1))){
                         moves.addAll(this.possibleMoves(i,j,side));
+                    }
+                }
+            }
+            //pieces in camp cant be moved
+            if(moves.isEmpty()){
+                for(int i=0;i<boardarr.length;i++){
+                    for(int j=0;j<boardarr[0].length;j++){
+                        if(side.equals("BLACK")) {
+                            if(boardarr[i][j].equals("B")) {
+                                moves.addAll(this.possibleMoves(i, j, side));
+                            }
+                        }else{
+                            if(boardarr[i][j].equals("W")){
+                                moves.addAll(this.possibleMoves(i,j,side));
+                            }
+                        }
                     }
                 }
             }
@@ -76,72 +112,114 @@ public class Board {
         if(inCamp(y,x,side)){
             if(side.equals("BLACK")){
                 if(y+1<=this.length && x+1<=this.width && this.board[y+1][x+1].equals(".")){
-                    moves.add(this.deepMove(y,x,y+1,x+1));
+                    Board newmove = this.deepMove(y,x,y+1,x+1);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y+1,x+1);
+                    moves.add(newmove);
                 }
                 if(y+1<=this.length && this.board[y+1][x].equals(".")){
-                    moves.add(this.deepMove(y,x,y+1,x));
+                    Board newmove = this.deepMove(y,x,y+1,x);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y+1,x);
+                    moves.add(newmove);
                 }
                 if(x+1<=this.width && this.board[y][x+1].equals(".")){
-                    moves.add(this.deepMove(y,x,y,x+1));
+                    Board newmove = this.deepMove(y,x,y,x+1);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y,x+1);
+                    moves.add(newmove);
                 }
             }else{
                 if(y-1>=0 && x-1>=0 && this.board[y-1][x-1].equals(".")){
-                    moves.add(this.deepMove(y,x,y-1,x-1));
+                    Board newmove = this.deepMove(y,x,y-1,x-1);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y-1,x-1);
+                    moves.add(newmove);
                 }
                 if(y-1>=0 && this.board[y-1][x].equals(".")){
-                    moves.add(this.deepMove(y,x,y-1,x));
+                    Board newmove = this.deepMove(y,x,y-1,x);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y-1,x);
+                    moves.add(newmove);
                 }
                 if(x-1>=0 && this.board[y][x-1].equals(".")){
-                    moves.add(this.deepMove(y,x,y,x-1));
+                    Board newmove = this.deepMove(y,x,y,x-1);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y,x-1);
+                    moves.add(newmove);
                 }
             }
         }else{
             if (y - 1 >= 0 && x - 1 >= 0 && !inCamp(y - 1, x - 1, side)) {
                 if (this.board[y - 1][x - 1].equals(".")) {
                     //move y,x left up
-                    moves.add(this.deepMove(y,x, y - 1, x - 1));
+                    Board newmove = this.deepMove(y,x,y-1,x-1);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y-1,x-1);
+                    moves.add(newmove);
                 }
             }
             if (y + 1 < this.length && x + 1 < this.width && !inCamp(y + 1, x + 1, side)) {
                 if (this.board[y + 1][x + 1].equals(".")) {
                     //move y,x right down
-                    moves.add(this.deepMove(y,x, y + 1, x + 1));
+                    Board newmove = this.deepMove(y,x,y+1,x+1);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y+1,x+1);
+                    moves.add(newmove);
                 }
             }
             if (y + 1 < this.length && x - 1 >= 0 && !inCamp(y + 1, x - 1, side)) {
                 if (this.board[y + 1][x - 1].equals(".")) {
                     //move y,x left down
-                    moves.add(this.deepMove(y,x, y + 1, x - 1));
+                    Board newmove = this.deepMove(y,x,y+1,x-1);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y+1,x-1);
+                    moves.add(newmove);
                 }
             }
             if (y - 1 >= 0 && x + 1 < this.width && !inCamp(y - 1, x + 1, side)) {
                 if (this.board[y - 1][x + 1].equals(".")) {
                     //move y,x right up
-                    moves.add(this.deepMove(y,x, y - 1, x + 1));
+                    Board newmove = this.deepMove(y,x,y-1,x+1);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y-1,x+1);
+                    moves.add(newmove);
                 }
             }
             if (y - 1 >= 0 && !inCamp(y - 1, x, side)) {
                 if (this.board[y - 1][x].equals(".")) {
                     //move y,x up
-                    moves.add(this.deepMove(y,x, y - 1, x));
+                    Board newmove = this.deepMove(y,x,y-1,x);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y-1,x);
+                    moves.add(newmove);
                 }
             }
             if (y + 1 < this.length && !inCamp(y + 1, x, side)) {
                 if (this.board[y + 1][x].equals(".")) {
                     //move y,x down
-                    moves.add(this.deepMove(y,x, y + 1, x));
+                    Board newmove = this.deepMove(y,x,y+1,x);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y+1,x);
+                    moves.add(newmove);
                 }
             }
             if (x - 1 >= 0 && !inCamp(y, x - 1, side)) {
                 if (this.board[y][x - 1].equals(".")) {
                     //move y,x left
-                    moves.add(this.deepMove(y,x, y, x - 1));
+                    Board newmove = this.deepMove(y,x,y,x-1);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y,x-1);
+                    moves.add(newmove);
                 }
             }
             if (x + 1 < this.width && !inCamp(y, x + 1, side)) {
                 if (this.board[y][x + 1].equals(".")) {
                     //move y,x right
-                    moves.add(this.deepMove(y,x, y, x + 1));
+                    Board newmove = this.deepMove(y,x,y,x+1);
+                    newmove.setLast(y,x);
+                    newmove.setCurrent(y,x+1);
+                    moves.add(newmove);
                 }
             }
         }
@@ -161,6 +239,8 @@ public class Board {
             Board newmove = current.deepMove(y,x,y+2,x+2);
             newmove.setJumped(true);
             newmove.setLast(y,x);
+            newmove.setCurrent(y+2,x+2);
+            newmove.setLast_board(current);
             moves.add(newmove);
             jump(y+2,x+2,moves,newmove,y,x,visited);
         }
@@ -171,6 +251,8 @@ public class Board {
             Board newmove = current.deepMove(y,x,y-2,x-2);
             newmove.setJumped(true);
             newmove.setLast(y,x);
+            newmove.setCurrent(y-2,x-2);
+            newmove.setLast_board(current);
             moves.add(newmove);
             jump(y-2,x-2,moves,newmove,y,x,visited);
         }
@@ -181,6 +263,8 @@ public class Board {
             Board newmove = current.deepMove(y,x,y-2,x+2);
             newmove.setJumped(true);
             newmove.setLast(y,x);
+            newmove.setCurrent(y-2,x+2);
+            newmove.setLast_board(current);
             moves.add(newmove);
             jump(y-2,x+2,moves,newmove,y,x,visited);
         }
@@ -191,6 +275,8 @@ public class Board {
             Board newmove = current.deepMove(y,x,y+2,x-2);
             newmove.setJumped(true);
             newmove.setLast(y,x);
+            newmove.setCurrent(y+2,x-2);
+            newmove.setLast_board(current);
             moves.add(newmove);
             jump(y+2,x-2,moves,newmove,y,x,visited);
         }
@@ -201,6 +287,8 @@ public class Board {
             Board newmove = current.deepMove(y,x,y+2,x);
             newmove.setJumped(true);
             newmove.setLast(y,x);
+            newmove.setCurrent(y+2,x);
+            newmove.setLast_board(current);
             moves.add(newmove);
             jump(y+2,x,moves,newmove,y,x,visited);
         }
@@ -211,6 +299,8 @@ public class Board {
             Board newmove = current.deepMove(y,x,y-2,x);
             newmove.setJumped(true);
             newmove.setLast(y,x);
+            newmove.setCurrent(y-2,x);
+            newmove.setLast_board(current);
             moves.add(newmove);
             jump(y-2,x,moves,newmove,y,x,visited);
         }
@@ -221,6 +311,8 @@ public class Board {
             Board newmove = current.deepMove(y,x,y,x-2);
             newmove.setJumped(true);
             newmove.setLast(y,x);
+            newmove.setCurrent(y,x-2);
+            newmove.setLast_board(current);
             moves.add(newmove);
             jump(y,x-2,moves,newmove,y,x,visited);
         }
@@ -231,6 +323,8 @@ public class Board {
             Board newmove = current.deepMove(y,x,y,x+2);
             newmove.setJumped(true);
             newmove.setLast(y,x);
+            newmove.setCurrent(y,x+2);
+            newmove.setLast_board(current);
             moves.add(newmove);
             jump(y,x+2,moves,newmove,y,x,visited);
         }
@@ -422,6 +516,7 @@ public class Board {
         return new Board(ans);
     }
 
+    //need better eval function
     public double evaluation(String side){
         double eval = 0;
         if(won(side)){

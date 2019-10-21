@@ -11,4 +11,9 @@ public class Move {
         Move m = (Move) obj;
         return m.y==this.y && m.x==this.x;
     }
+
+    @Override
+    public String toString() {
+        return "(" + this.y + "," + this.x + ")";
+    }
 }
