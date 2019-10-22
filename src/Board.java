@@ -516,27 +516,273 @@ public class Board {
         return new Board(ans);
     }
 
+    public double distancetoCloest(int y, int x, String side){
+        double dist = Double.POSITIVE_INFINITY;
+        if(side.equals("BLACK")){
+            dist = Math.abs(y-15) + Math.abs(x-15);
+            if(dist > Math.abs(y-15) + Math.abs(x-14)){
+                dist = Math.abs(y-15) + Math.abs(x-14);
+            }
+            if(dist > Math.abs(y-15) + Math.abs(x-13)){
+                dist = Math.abs(y-15) + Math.abs(x-13);
+            }
+            if(dist > Math.abs(y-15) + Math.abs(x-12)){
+                dist = Math.abs(y-15) + Math.abs(x-12);
+            }
+            if(dist > Math.abs(y-15) + Math.abs(x-11)){
+                dist = Math.abs(y-15) + Math.abs(x-11);
+            }
+            if(dist > Math.abs(y-14) + Math.abs(x-15)){
+                dist = Math.abs(y-14) + Math.abs(x-15);
+            }
+            if(dist > Math.abs(y-14) + Math.abs(x-14)){
+                dist = Math.abs(y-14) + Math.abs(x-14);
+            }
+            if(dist > Math.abs(y-14) + Math.abs(x-13)){
+                dist = Math.abs(y-14) + Math.abs(x-13);
+            }
+            if(dist > Math.abs(y-14) + Math.abs(x-12)){
+                dist = Math.abs(y-14) + Math.abs(x-12);
+            }
+            if(dist > Math.abs(y-14) + Math.abs(x-11)){
+                dist = Math.abs(y-14) + Math.abs(x-11);
+            }
+            if(dist > Math.abs(y-13) + Math.abs(x-15)){
+                dist = Math.abs(y-13) + Math.abs(x-15);
+            }
+            if(dist > Math.abs(y-13) + Math.abs(x-14)){
+                dist = Math.abs(y-13) + Math.abs(x-14);
+            }
+            if(dist > Math.abs(y-13) + Math.abs(x-13)){
+                dist = Math.abs(y-13) + Math.abs(x-13);
+            }
+            if(dist > Math.abs(y-13) + Math.abs(x-12)){
+                dist = Math.abs(y-13) + Math.abs(x-12);
+            }
+            if(dist > Math.abs(y-12) + Math.abs(x-15)){
+                dist = Math.abs(y-12) + Math.abs(x-15);
+            }
+            if(dist > Math.abs(y-12) + Math.abs(x-14)){
+                dist = Math.abs(y-12) + Math.abs(x-14);
+            }
+            if(dist > Math.abs(y-12) + Math.abs(x-13)){
+                dist = Math.abs(y-12) + Math.abs(x-13);
+            }
+            if(dist > Math.abs(y-11) + Math.abs(x-15)){
+                dist = Math.abs(y-11) + Math.abs(x-15);
+            }
+            if(dist > Math.abs(y-11) + Math.abs(x-14)){
+                dist = Math.abs(y-11) + Math.abs(x-14);
+            }
+        }else{
+            dist = Math.abs(y) + Math.abs(x);
+            if(dist > Math.abs(y) + Math.abs(x-1)){
+                dist = Math.abs(y) + Math.abs(x-1);
+            }
+            if(dist > Math.abs(y) + Math.abs(x-2)){
+                dist = Math.abs(y) + Math.abs(x-2);
+            }
+            if(dist > Math.abs(y) + Math.abs(x-3)){
+                dist = Math.abs(y) + Math.abs(x-3);
+            }
+            if(dist > Math.abs(y) + Math.abs(x-4)){
+                dist = Math.abs(y) + Math.abs(x-4);
+            }
+            if(dist > Math.abs(y-1) + Math.abs(x)){
+                dist = Math.abs(y-1) + Math.abs(x);
+            }
+            if(dist > Math.abs(y-1) + Math.abs(x-1)){
+                dist = Math.abs(y-1) + Math.abs(x-1);
+            }
+            if(dist > Math.abs(y-1) + Math.abs(x-2)){
+                dist = Math.abs(y-1) + Math.abs(x-2);
+            }
+            if(dist > Math.abs(y-1) + Math.abs(x-3)){
+                dist = Math.abs(y-1) + Math.abs(x-3);
+            }
+            if(dist > Math.abs(y-1) + Math.abs(x-4)){
+                dist = Math.abs(y-1) + Math.abs(x-4);
+            }
+            if(dist > Math.abs(y-2) + Math.abs(x)){
+                dist = Math.abs(y-2) + Math.abs(x);
+            }
+            if(dist > Math.abs(y-2) + Math.abs(x-1)){
+                dist = Math.abs(y-2) + Math.abs(x-1);
+            }
+            if(dist > Math.abs(y-2) + Math.abs(x-2)){
+                dist = Math.abs(y-2) + Math.abs(x-2);
+            }
+            if(dist > Math.abs(y-2) + Math.abs(x-3)){
+                dist = Math.abs(y-2) + Math.abs(x-3);
+            }
+            if(dist > Math.abs(y-3) + Math.abs(x)){
+                dist = Math.abs(y-3) + Math.abs(x);
+            }
+            if(dist > Math.abs(y-3) + Math.abs(x-1)){
+                dist = Math.abs(y-3) + Math.abs(x-1);
+            }
+            if(dist > Math.abs(y-3) + Math.abs(x-2)){
+                dist = Math.abs(y-3) + Math.abs(x-2);
+            }
+            if(dist > Math.abs(y-4) + Math.abs(x)){
+                dist = Math.abs(y-4) + Math.abs(x);
+            }
+            if(dist > Math.abs(y-4) + Math.abs(x-1)){
+                dist = Math.abs(y-4) + Math.abs(x-1);
+            }
+        }
+        return dist;
+    }
+    public boolean almostWon(String side){
+        int need_to_fill = 0;
+        if(side.equals("BLACK")){
+            if(campisEmpty("WHITE")) {
+                if (this.board[15][15].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[15][14].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[15][13].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[15][12].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[15][11].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[14][15].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[14][14].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[14][13].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[14][12].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[14][11].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[13][15].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[13][14].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[13][13].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[13][12].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[12][15].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[12][14].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[12][13].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[11][15].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[11][14].equals(".")) {
+                    need_to_fill++;
+                }
+            }
+        }else{
+            if(campisEmpty("BLACK")) {
+                if (this.board[0][0].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[0][1].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[0][2].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[0][3].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[0][4].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[1][0].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[1][1].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[1][2].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[1][3].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[1][4].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[2][0].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[2][1].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[2][2].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[2][3].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[3][0].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[3][1].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[3][2].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[4][0].equals(".")) {
+                    need_to_fill++;
+                }
+                if (this.board[4][1].equals(".")) {
+                    need_to_fill++;
+                }
+            }
+        }
+        return need_to_fill==1;
+    }
     //need better eval function
     public double evaluation(String side){
         double eval = 0;
         if(won(side)){
-            return Double.POSITIVE_INFINITY;
+            return 100;
         }
         if(side.equals("BLACK")){
             if(won("WHITE")){
-                return Double.NEGATIVE_INFINITY;
+                return -100;
             }
         }
         if(side.equals("WHITE")){
             if(won("BLACK")){
-                return Double.NEGATIVE_INFINITY;
+                return -100;
             }
         }
         if(side.equals("BLACK")){
             for(int i=0;i<this.length;i++){
                 for(int j=0;j<this.width;j++){
                     if(this.board[i][j].equals("B")){
-                        eval += Math.sqrt(Math.pow(i-this.length-1,2)+Math.pow(j-this.width-1,2));
+                        if(inCamp(i,j,"BLACK")){
+                            eval += distancetoCloest(i,j,"BLACK") + (Math.abs(i-15)+Math.abs(j-15))+50;
+                        }else {
+                            eval += distancetoCloest(i, j, "BLACK") + (Math.abs(i - 15) + Math.abs(j - 15));
+                        }
                     }
                 }
             }
@@ -544,7 +790,11 @@ public class Board {
             for(int i=0;i<this.length;i++){
                 for(int j=0;j<this.width;j++){
                     if(this.board[i][j].equals("W")){
-                        eval += Math.sqrt(Math.pow(i,2)+Math.pow(j,2));
+                        if(inCamp(i,j,"WHITE")){
+                            eval += distancetoCloest(i,j,"WHITE") + (Math.abs(i)+Math.abs(j)) + 50;
+                        }else {
+                            eval += distancetoCloest(i, j, "WHITE") + (Math.abs(i) + Math.abs(j));
+                        }
                     }
                 }
             }

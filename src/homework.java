@@ -57,9 +57,9 @@ public class homework {
     }
     public static void main(String[] args) throws FileNotFoundException {
         //INITIAL SET UP FOR THE BOARD
-        String mode;
+        String mode="";
         String side="";
-        Float time;
+        Float time=(float)0;
         File file = new File("input.txt");
         ArrayList<ArrayList<String>> preboard = new ArrayList<>();
         Scanner scan = new Scanner(file);
@@ -89,10 +89,31 @@ public class homework {
         //start playing
         homework test = new homework();
         long startTime = System.currentTimeMillis();
-
-        Board ans = test.minimax(board,5,true,side,
-              Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-
+        Board ans = null;
+        if(mode.equals("SINGLE")){
+            //System.out.println("IN SINGLE");
+            ans = test.minimax(board,2,true,side,
+                    Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        }else{
+            //System.out.println("IN GAME");
+            if(board.almostWon(side) && time>=5){
+                //System.out.println("ALMOST WON");
+                ans = test.minimax(board,4,true,side,
+                        Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            }else if(time>=20){
+                //System.out.println("TIME ENOUGH");
+                ans = test.minimax(board,3,true,side,
+                        Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            }else if(time<20 && time>1){
+                //System.out.println("LESS THAN 20");
+                ans = test.minimax(board,2,true,side,
+                        Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            }else if(time<1){
+                //System.out.println("LESS THAN 1");
+                ans = test.minimax(board,1,true,side,
+                        Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            }
+        }
         long endTime   = System.currentTimeMillis();
         //System.out.println(ans);
         String ans_str = "";
@@ -121,7 +142,6 @@ public class homework {
         PrintWriter out = new PrintWriter("output.txt");
         out.print(ans_str);
         out.close();
-        //System.out.println(ans_str);
-        System.out.println("PROGRAM FINISHED IN: " + (endTime-startTime)/10 +" seconds");
+        System.out.println("PROGRAM FINISHED IN: " + (float)(endTime-startTime)/1000 +" seconds");
     }
 }
